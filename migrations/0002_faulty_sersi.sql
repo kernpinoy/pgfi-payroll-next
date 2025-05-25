@@ -1,0 +1,1 @@
+ALTER TABLE "employees" RENAME COLUMN "middle_initial" TO "middle_name";
