@@ -13,7 +13,13 @@ import {
 import { type ComponentProps } from "react";
 import NavUser from "./nav-user";
 import NavMain from "./nav-main";
-import { HouseIcon, UserIcon, type LucideIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  HandCoinsIcon,
+  HouseIcon,
+  UserIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 interface Item {
   title: string;
@@ -35,6 +41,16 @@ const items: Items = [
     url: "/home/employees",
     icon: UserIcon,
   },
+  {
+    title: "Attendance",
+    url: "/home/attendance",
+    icon: CalendarIcon,
+  },
+  {
+    title: "Payroll",
+    url: "/home/payroll",
+    icon: HandCoinsIcon,
+  },
 ];
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
@@ -55,7 +71,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={items}/>
+        <NavMain items={items} />
         {/* <NavDocuments items={data.documents} />
             <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>

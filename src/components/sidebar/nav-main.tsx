@@ -40,7 +40,7 @@ export default function NavMain({
                       "flex items-center gap-2 px-3 transition-colors",
                       isActive
                         ? "bg-muted !text-primary font-semibold hover:bg-muted !hover:text-primary"
-                        : "hover:bg-muted/50"
+                        : "hover:bg-muted/50",
                     )}
                   >
                     {item.icon && (

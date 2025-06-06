@@ -1,19 +1,14 @@
-import { getEmployees } from "@/db/functions/employee";
 import { validateRequest } from "@/lib/validate-request";
+import { redirect } from "next/navigation";
+import AttendanceClient from "./_components/attendance-client";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { redirect } from "next/navigation";
-import ViewEmployeeDetails from "./_components/view-employee-details";
+import { getEmployeeAttendance, getEmployees } from "@/db/functions/employee";
 
-export default async function EmployeeDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function AttendancePage() {
   const { session, user } = await validateRequest();
 
   if (!session || !user) {
@@ -27,9 +22,14 @@ export default async function EmployeeDetailsPage({
     queryFn: getEmployees,
   });
 
+  await queryClient.prefetchQuery({
+    queryKey: ["employees-attendance"],
+    queryFn: getEmployeeAttendance,
+  });
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ViewEmployeeDetails employeeId={id} />
+      <AttendanceClient />
     </HydrationBoundary>
   );
 }

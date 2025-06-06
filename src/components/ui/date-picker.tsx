@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "./scroll-area";
 
 interface DatePickerProps {
   startYear?: number;

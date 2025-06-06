@@ -6,30 +6,26 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
-import ViewEmployeeDetails from "./_components/view-employee-details";
+import EditEmployeeClient from "./_components/edit-employee-client";
 
-export default async function EmployeeDetailsPage({
+export default async function EmployeeEditPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
   const { session, user } = await validateRequest();
-
-  if (!session || !user) {
+  const { id } = await params;
+  if (!user || !session) {
     redirect("/");
   }
-
   const queryClient = new QueryClient();
-
   await queryClient.prefetchQuery({
     queryKey: ["employees-list"],
     queryFn: getEmployees,
   });
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ViewEmployeeDetails employeeId={id} />
+      <EditEmployeeClient employeeId={id} />
     </HydrationBoundary>
   );
 }

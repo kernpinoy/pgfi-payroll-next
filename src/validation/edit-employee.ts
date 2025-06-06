@@ -1,4 +1,4 @@
-import { z } from "zod";
+import z from "zod";
 
 const philippineContactNoRegex = /^(?:\+63|0)9\d{9}$/;
 
@@ -6,7 +6,8 @@ function toTitleCase(str: string): string {
   return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-const addEmployeeSchema = z.object({
+export const editEmployeeSchema = z.object({
+  id: z.string().uuid(),
   firstName: z
     .string()
     .min(1, "First name is required.")
@@ -31,7 +32,7 @@ const addEmployeeSchema = z.object({
     .trim()
     .regex(
       philippineContactNoRegex,
-      "Contact number must be valid (e.g., +639171234567 or 09171234567). "
+      "Contact number must be valid (e.g., +639171234567 or 09171234567)."
     ),
   email: z.string().email("Invalid email address.").trim(),
   employeeId: z.string().min(1, "Employee ID is required.").trim(),
@@ -45,6 +46,7 @@ const addEmployeeSchema = z.object({
       coerce: true,
       message: "Work rate must be a valid number.",
     })
+    .min(0, "Work rate must be a positive number.")
     .optional(),
   bankName: z.string().trim().optional(),
   bankNumber: z.string().trim().optional(),
@@ -54,4 +56,4 @@ const addEmployeeSchema = z.object({
   tin: z.string().trim().optional(),
 });
 
-export default addEmployeeSchema;
+export type EditEmployeeFormValues = z.infer<typeof editEmployeeSchema>;

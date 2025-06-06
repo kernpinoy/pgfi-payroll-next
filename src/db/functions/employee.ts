@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "..";
-import { employees, type Employees } from "../schema";
+import { attendance, employees, type Employees } from "../schema";
 import { employeeFullName } from "../raw-commands";
 import { getTableColumns } from "drizzle-orm";
 
@@ -14,6 +14,12 @@ export async function getEmployees(): Promise<
       fullName: employeeFullName,
     })
     .from(employees);
+
+  return data;
+}
+
+export async function getEmployeeAttendance() {
+  const data = await db.select().from(attendance);
 
   return data;
 }

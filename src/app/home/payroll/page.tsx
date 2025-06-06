@@ -1,4 +1,3 @@
-import { getEmployees } from "@/db/functions/employee";
 import { validateRequest } from "@/lib/validate-request";
 import {
   dehydrate,
@@ -6,14 +5,9 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
-import ViewEmployeeDetails from "./_components/view-employee-details";
+import PayrollClient from "./_components/payroll-client";
 
-export default async function EmployeeDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function PayrollPage() {
   const { session, user } = await validateRequest();
 
   if (!session || !user) {
@@ -22,14 +16,9 @@ export default async function EmployeeDetailsPage({
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["employees-list"],
-    queryFn: getEmployees,
-  });
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ViewEmployeeDetails employeeId={id} />
+      <PayrollClient />
     </HydrationBoundary>
   );
 }

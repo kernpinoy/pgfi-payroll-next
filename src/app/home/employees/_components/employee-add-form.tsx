@@ -21,10 +21,10 @@ import {
   AddEmployeeFormSchema,
   useAddEmployeeFormSchema,
 } from "@/hooks/use-add-employee-form";
-import { ComponentProps, useEffect } from "react";
+import { type ComponentProps, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { DatePicker } from "@/components/date-picker";
+import { DatePicker } from "@/components/ui/date-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAction } from "next-safe-action/hooks";
 import { addEmployeeAction } from "./action";
@@ -55,19 +55,20 @@ export default function EmployeeAddForm({
       if (data?.success) {
         toast.success(data.message, {
           id: toastId,
-          description: "Employee added successfully.",
         });
 
         form.reset();
         queryClient.invalidateQueries({
           queryKey: ["employees-list"],
         });
+
+        props.onOpenChange?.(false);
       }
     },
+
     onError: ({ error }) => {
       toast.error(error.serverError, {
         id: toastId,
-        description: "Failed to add employee.",
       });
     },
   });
