@@ -24,11 +24,31 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import useGetEmployeeAttendance from "@/data/use-get-employee-attendance";
 import useGetEmployeesFullName from "@/data/use-get-employees-fullname";
-import { Filter, RefreshCw, AlertCircle, FileX, Calendar } from "lucide-react";
+import {
+  Filter,
+  RefreshCw,
+  AlertCircle,
+  FileX,
+  Calendar,
+  MoreHorizontal,
+  Trash2,
+  SquarePen,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parseISO, format, parse } from "date-fns";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import DeleteAttendanceForm from "./delete-attendance-form";
+import type { Attendance } from "@/db/schema";
 
 const MONTHS = [
   "January",
@@ -49,6 +69,15 @@ export function ViewEmployeeAttendance() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data } = useGetEmployeesFullName();
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    attendance: Attendance | null;
+    employeeName: string;
+  }>({
+    open: false,
+    attendance: null,
+    employeeName: "",
+  });
 
   // Safely decode query parameters
   const currentEmployeeId = searchParams.get("employeeId")
@@ -76,7 +105,7 @@ export function ViewEmployeeAttendance() {
     const count = attendance ? attendance.length : 0;
     return count === 0
       ? "No records found"
-      : `${count} record${count > 1 ? "s" : ""}`;
+      : `${count} record${count > 1 ? "s" : ""}.`;
   }, [attendance]);
 
   function setFilterEmployee(employeeId: string) {
@@ -322,6 +351,7 @@ export function ViewEmployeeAttendance() {
                     <TableHead className="text-center">Overtime</TableHead>
                     <TableHead className="text-center">OT Hours</TableHead>
                     <TableHead className="text-center">Cutoff</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -355,6 +385,40 @@ export function ViewEmployeeAttendance() {
                       <TableCell className="text-center">
                         {record.cutoff.toUpperCase()}
                       </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <span className="sr-only">Actions</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setDeleteDialog({
+                                  open: true,
+                                  attendance: record,
+                                  employeeName: getEmployeeName(
+                                    record.employeeId
+                                  ),
+                                })
+                              }
+                            >
+                              <Trash2 className="w-4 h-4 mr-2 text-red-500" />
+                              Delete record
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/home/attendance/${record.id}/edit`}>
+                                <SquarePen className="w-4 h-4 mr-2 text-amber-500" />
+                                Edit record
+                              </Link>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -363,6 +427,18 @@ export function ViewEmployeeAttendance() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Attendance Dialog */}
+      {deleteDialog.attendance && (
+        <DeleteAttendanceForm
+          open={deleteDialog.open}
+          onOpenChange={(open) =>
+            setDeleteDialog((prev) => ({ ...prev, open }))
+          }
+          attendance={deleteDialog.attendance}
+          employeeName={deleteDialog.employeeName}
+        />
+      )}
     </>
   );
 }

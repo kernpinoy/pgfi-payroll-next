@@ -70,14 +70,9 @@ export const attendance = pgTable("attendance", {
 
 export const employeeDeduction = pgTable("employee_deduction", {
   id: uuid("id").primaryKey().defaultRandom(),
-  employeeId: uuid("employee_id")
-    .notNull()
-    .references(() => employees.id, { onDelete: "cascade" }),
   deductionName: text("deduction_name").notNull(),
   deductionType: deductionType("deduction_type").notNull(),
   amount: doublePrecision("amount").notNull(), // deduction amount or rate
-  startDate: date("start_date", { mode: "date" }).notNull(),
-  endDate: date("end_date", { mode: "date" }), // nullable, for stopping deduction
   active: boolean("active").default(true).notNull(),
 });
 

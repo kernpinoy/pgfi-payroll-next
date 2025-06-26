@@ -40,7 +40,12 @@ export default function EditEmployeeClient({
         toast.success(data.message);
         form.reset(form.getValues(), { keepValues: true });
         setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ["employees-list"] });
+          queryClient.invalidateQueries({
+            queryKey: ["employees-list", "employee-deduction"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["employee-deduction"],
+          });
         }, 100);
       }
     },

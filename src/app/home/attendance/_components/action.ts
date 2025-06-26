@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { attendance } from "@/db/schema";
 import { ActionError, authActionClient } from "@/lib/action-client";
 import { addAttendanceSchema } from "@/validation/add-attendance";
+import { deleteAttendanceSchema } from "@/validation/delete-attendance";
 import { and, eq } from "drizzle-orm";
 
 export const addAttendanceAction = authActionClient
@@ -50,6 +51,41 @@ export const addAttendanceAction = authActionClient
     return {
       success: true,
       message: "Attendance added successfully.",
+      result,
+    };
+  });
+
+export const deleteAttendanceAction = authActionClient
+  .schema(deleteAttendanceSchema)
+  .action(async ({ parsedInput }) => {
+    const { id } = parsedInput;
+
+    // Check if the attendance record exists
+    const existingAttendance = await db.query.attendance.findFirst({
+      where: eq(attendance.id, id),
+    });
+
+    if (!existingAttendance) {
+      throw new ActionError("Attendance record not found.");
+    }
+
+    // Delete the attendance record
+    const [result] = await db.transaction(async (tx) => {
+      return await tx
+        .delete(attendance)
+        .where(eq(attendance.id, id))
+        .returning();
+    });
+
+    if (!result) {
+      throw new ActionError(
+        "Failed to delete attendance record. Please try again."
+      );
+    }
+
+    return {
+      success: true,
+      message: "Attendance record deleted successfully.",
       result,
     };
   });

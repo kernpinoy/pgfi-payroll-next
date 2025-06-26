@@ -87,6 +87,9 @@ export default function AddAttendanceForm() {
         queryClient.invalidateQueries({
           queryKey: ["employees-attendance"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["employee-deduction"],
+        });
 
         // Keep the current employeeId when resetting
         const currentEmployeeId = form.getValues("employeeId");
