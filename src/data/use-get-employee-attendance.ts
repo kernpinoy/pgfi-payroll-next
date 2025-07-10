@@ -1,6 +1,21 @@
 import { getEmployeeAttendance } from "@/db/functions/employee";
 import { useQuery } from "@tanstack/react-query";
 
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 interface AttendanceFilters {
   employeeId?: string;
   month?: string;
@@ -24,7 +39,7 @@ export default function useGetEmployeeAttendance(
     select: (data) => {
       if (!data) return data;
 
-      return data.filter((record) => {
+      const filteredData = data.filter((record) => {
         // Filter by employee
         if (employeeId !== "all" && record.employeeId !== employeeId) {
           return false;
@@ -33,10 +48,8 @@ export default function useGetEmployeeAttendance(
         // Filter by month
         if (month !== "all") {
           const recordDate = new Date(record.date);
-          const recordMonth = recordDate.toLocaleString("default", {
-            month: "long",
-          });
-          if (recordMonth !== month) {
+          const recordMonth = recordDate.getMonth(); // 0-11 for Jan-Dec
+          if (recordMonth !== MONTHS.indexOf(month)) {
             return false;
           }
         }
@@ -56,6 +69,23 @@ export default function useGetEmployeeAttendance(
         }
 
         return true;
+      });
+
+      // Sort by year, then month, then day
+      return filteredData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+
+        // First sort by year
+        const yearDiff = dateA.getFullYear() - dateB.getFullYear();
+        if (yearDiff !== 0) return yearDiff;
+
+        // Then by month
+        const monthDiff = dateA.getMonth() - dateB.getMonth();
+        if (monthDiff !== 0) return monthDiff;
+
+        // Finally by day
+        return dateA.getDate() - dateB.getDate();
       });
     },
   });
