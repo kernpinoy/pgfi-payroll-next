@@ -5,12 +5,18 @@ interface AttendanceFilters {
   employeeId?: string;
   month?: string;
   year?: string;
+  cutoff?: string;
 }
 
 export default function useGetEmployeeAttendance(
   filters: AttendanceFilters = {}
 ) {
-  const { employeeId = "all", month = "all", year = "all" } = filters;
+  const {
+    employeeId = "all",
+    month = "all",
+    year = "all",
+    cutoff = "all",
+  } = filters;
 
   return useQuery({
     queryKey: ["employees-attendance", filters],
@@ -42,6 +48,11 @@ export default function useGetEmployeeAttendance(
           if (recordYear !== year) {
             return false;
           }
+        }
+
+        // Filter by cutoff
+        if (cutoff !== "all" && record.cutoff !== cutoff) {
+          return false;
         }
 
         return true;

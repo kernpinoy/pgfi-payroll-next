@@ -89,6 +89,9 @@ export function ViewEmployeeAttendance() {
   const currentYear = searchParams.get("year")
     ? decodeURIComponent(searchParams.get("year")!)
     : "all";
+  const currentCutoff = searchParams.get("cutoff")
+    ? decodeURIComponent(searchParams.get("cutoff")!)
+    : "all";
 
   const {
     data: attendance,
@@ -99,6 +102,7 @@ export function ViewEmployeeAttendance() {
     employeeId: currentEmployeeId,
     month: currentMonth,
     year: currentYear,
+    cutoff: currentCutoff,
   });
 
   const badgeText = useMemo(() => {
@@ -134,6 +138,16 @@ export function ViewEmployeeAttendance() {
       params.delete("year");
     } else {
       params.set("year", encodeURIComponent(year));
+    }
+    router.push(`/home/attendance?${params.toString()}`);
+  }
+
+  function setFilterCutoff(cutoff: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (cutoff === "all") {
+      params.delete("cutoff");
+    } else {
+      params.set("cutoff", encodeURIComponent(cutoff));
     }
     router.push(`/home/attendance?${params.toString()}`);
   }
@@ -218,13 +232,15 @@ export function ViewEmployeeAttendance() {
       <p className="text-sm text-muted-foreground mb-4">
         {currentEmployeeId !== "all" ||
         currentMonth !== "all" ||
-        currentYear !== "all"
+        currentYear !== "all" ||
+        currentCutoff !== "all"
           ? "No records match your current filters. Try adjusting the filters above."
           : "There are no attendance records in the system yet."}
       </p>
       {(currentEmployeeId !== "all" ||
         currentMonth !== "all" ||
-        currentYear !== "all") && (
+        currentYear !== "all" ||
+        currentCutoff !== "all") && (
         <Button
           variant="outline"
           onClick={() => {
@@ -303,6 +319,21 @@ export function ViewEmployeeAttendance() {
                     <SelectItem value="all">All Years</SelectItem>
                     <SelectGroup>{yearOptions}</SelectGroup>
                   </ScrollArea>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/** Cutoff filter select */}
+            <div className="space-y-2">
+              <Label htmlFor="filterCutoff">Cutoff</Label>
+              <Select value={currentCutoff} onValueChange={setFilterCutoff}>
+                <SelectTrigger id="filterCutoff">
+                  <SelectValue placeholder="Select cutoff" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cutoffs</SelectItem>
+                  <SelectItem value="a">Cutoff A</SelectItem>
+                  <SelectItem value="b">Cutoff B</SelectItem>
                 </SelectContent>
               </Select>
             </div>
