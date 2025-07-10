@@ -66,6 +66,7 @@ export const attendance = pgTable("attendance", {
   undertime: boolean("undertime").default(false),
   overtime: boolean("overtime").default(false),
   overtimeHours: doublePrecision("overtime_hours").default(0.0),
+  breakTimeHours: doublePrecision("break_time_hours").default(1.0),
 });
 
 export const employeeDeduction = pgTable("employee_deduction", {

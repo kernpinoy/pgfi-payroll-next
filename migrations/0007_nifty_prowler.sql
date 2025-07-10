@@ -1,0 +1,1 @@
+ALTER TABLE "attendance" ALTER COLUMN "break_time_hours" SET DEFAULT 1;
