@@ -18,6 +18,7 @@ export const editAttendanceSchema = z.object({
   undertime: z.boolean(),
   overtime: z.boolean(),
   overtimeHours: z.number().min(0),
+  breakTimeHours: z.number().min(1),
 });
 
 export type EditAttendanceFormValues = z.infer<typeof editAttendanceSchema>;

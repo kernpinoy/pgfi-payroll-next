@@ -23,6 +23,7 @@ export function useEditAttendanceForm(
       undertime: data?.undertime || false,
       overtime: data?.overtime || false,
       overtimeHours: data?.overtimeHours || 0,
+      breakTimeHours: data?.breakTimeHours || 1,
     },
   });
 }

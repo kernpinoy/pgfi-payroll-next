@@ -46,6 +46,7 @@ export const updateAttendanceAction = actionClient
           undertime: parsedInput.undertime,
           overtime: parsedInput.overtime,
           overtimeHours: parsedInput.overtimeHours,
+          breakTimeHours: parsedInput.breakTimeHours,
         })
         .where(eq(attendance.id, parsedInput.id));
 

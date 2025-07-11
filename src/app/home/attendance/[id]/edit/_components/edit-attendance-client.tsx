@@ -61,7 +61,6 @@ export default function EditAttendanceClient({
     onSuccess: ({ data }) => {
       if (data?.success) {
         toast.success(data.message);
-        form.reset(form.getValues(), { keepValues: true });
         setTimeout(() => {
           queryClient.invalidateQueries({
             queryKey: ["attendance-list", "employee-attendance"],
@@ -116,15 +115,14 @@ export default function EditAttendanceClient({
         undertime: attendanceData.undertime || false,
         overtime: attendanceData.overtime || false,
         overtimeHours: attendanceData.overtimeHours || 0,
+        breakTimeHours: attendanceData.breakTimeHours || 1,
       };
 
-      if (status !== "idle") {
-        form.reset(formValues, {
-          keepErrors: false,
-          keepDirty: false,
-          keepIsSubmitted: false,
-        });
-      }
+      form.reset(formValues, {
+        keepErrors: false,
+        keepDirty: false,
+        keepIsSubmitted: false,
+      });
     }
   }, [attendanceData, form, status]);
 
@@ -334,6 +332,36 @@ export default function EditAttendanceClient({
                       <FormLabel>Time Out</FormLabel>
                       <FormControl>
                         <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="breakTimeHours"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Break Time Hours
+                        <span className="text-muted-foreground text-xs ml-1">
+                          (Minimum 1 hour)
+                        </span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.25"
+                          min="1"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              Number.parseFloat(e.target.value) || 1
+                            )
+                          }
+                          placeholder="1.00"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -62,7 +62,12 @@ export async function getAttendanceById(attendanceId: string) {
  * - Cutoff A: Pag-IBIG deductions only
  * - Cutoff B: SSS and PhilHealth deductions only
  */
-export async function getDeductionsPerEmployee(employeeId: string) {
+export async function getDeductionsPerEmployee(
+  employeeId: string,
+  month?: string,
+  year?: string,
+  existingAttendance?: (typeof attendance.$inferSelect)[]
+) {
   // Fetch required data
   const [employee] = await db
     .select({
@@ -71,10 +76,32 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     })
     .from(employees)
     .where(eq(employees.id, employeeId));
-  const employeeAttendance = await db
-    .select()
-    .from(attendance)
-    .where(eq(attendance.employeeId, employeeId));
+
+  let employeeAttendance;
+  if (existingAttendance) {
+    employeeAttendance = existingAttendance;
+  } else {
+    employeeAttendance = await db
+      .select()
+      .from(attendance)
+      .where(eq(attendance.employeeId, employeeId));
+
+    // Apply month/year filters if provided
+    if (month || year) {
+      employeeAttendance = employeeAttendance.filter((record) => {
+        const recordDate = new Date(record.date);
+        const recordMonth = recordDate.toLocaleString("en-US", {
+          month: "long",
+        });
+        const recordYear = recordDate.getFullYear().toString();
+
+        const matchesMonth = !month || recordMonth === month;
+        const matchesYear = !year || recordYear === year;
+
+        return matchesMonth && matchesYear;
+      });
+    }
+  }
 
   // Calculate basic employee rates
   const workRate = employee.workRate!;
@@ -116,7 +143,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     )
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -129,7 +161,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     )
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -141,7 +178,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     .filter((record) => record.regularHoliday && !record.overtime)
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -149,7 +191,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     .filter((record) => record.regularHoliday && !record.overtime)
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -158,7 +205,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     .filter((record) => record.specialNonWorkingHoliday && !record.overtime)
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -166,7 +218,12 @@ export async function getDeductionsPerEmployee(employeeId: string) {
     .filter((record) => record.specialNonWorkingHoliday && !record.overtime)
     .reduce(
       (total, record) =>
-        total + computeHoursWorked(record.timeIn, record.timeOut),
+        total +
+        computeHoursWorked(
+          record.timeIn,
+          record.timeOut,
+          record.breakTimeHours || 1
+        ),
       0
     );
 
@@ -188,13 +245,23 @@ export async function getDeductionsPerEmployee(employeeId: string) {
   // Calculate hours worked for each cutoff
   const hoursWorkedA = cutoffA.reduce(
     (total, record) =>
-      total + computeHoursWorked(record.timeIn, record.timeOut),
+      total +
+      computeHoursWorked(
+        record.timeIn,
+        record.timeOut,
+        record.breakTimeHours || 1
+      ),
     0
   );
 
   const hoursWorkedB = cutoffB.reduce(
     (total, record) =>
-      total + computeHoursWorked(record.timeIn, record.timeOut),
+      total +
+      computeHoursWorked(
+        record.timeIn,
+        record.timeOut,
+        record.breakTimeHours || 1
+      ),
     0
   );
 
