@@ -17,6 +17,7 @@ function useAddAttendanceForm() {
       regularHoliday: false,
       specialNonWorkingHoliday: false,
       undertime: false,
+      breakTimeHours: 1,
     },
   });
 }

@@ -21,6 +21,7 @@ export const addAttendanceAction = authActionClient
       undertime: parsedInput.undertime,
       overtime: parsedInput.overtime,
       overtimeHours: parsedInput.overtimeHours,
+      breakTimeHours: parsedInput.breakTimeHours,
     };
 
     // check for duplicate attendance first before inserting

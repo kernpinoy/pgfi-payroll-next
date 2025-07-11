@@ -256,6 +256,29 @@ export default function AddAttendanceForm() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="breakTimeHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Break Time Hours</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.25"
+                        min="1"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(Number.parseFloat(e.target.value) || 1)
+                        }
+                        placeholder="1.00"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 

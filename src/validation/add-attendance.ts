@@ -17,4 +17,5 @@ export const addAttendanceSchema = z.object({
   undertime: z.boolean().default(false),
   overtime: z.boolean().default(false),
   overtimeHours: z.number().min(0).default(0),
+  breakTimeHours: z.number().min(1).default(1),
 });
