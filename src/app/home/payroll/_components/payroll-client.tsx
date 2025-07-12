@@ -75,7 +75,7 @@ export default function PayrollClient() {
         );
         return;
       }
-      
+
       try {
         const doc = (
           <PayslipPDF
@@ -94,7 +94,7 @@ export default function PayrollClient() {
           "-"
         )}-cutoff-${cutoff.toUpperCase()}-${filters.month}-${filters.year}.pdf`;
         saveAs(blob, filename);
-      } catch (error) {
+      } catch {
         toast.error("Error generating PDF. Please try again.");
       }
     },

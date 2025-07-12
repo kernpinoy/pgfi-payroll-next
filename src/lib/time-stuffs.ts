@@ -1,7 +1,6 @@
 import { type Attendance } from "@/db/schema";
-import { parse, differenceInMinutes, parseISO, isValid, getMonth, getYear } from "date-fns";
-import { record } from "zod";
-import { computeGrossPay, computeGrossPayTotal, computeOvertimePay } from "./money";
+import { parse, differenceInMinutes, parseISO, getMonth, getYear } from "date-fns";
+import { computeGrossPayTotal, computeOvertimePay } from "./money";
 import { getPhilHealthContribution } from "./philhealth-contrib";
 import { getEEFromGross } from "./sss-contrib";
 import { getPagibigOffset } from "./pagibig-contrib";

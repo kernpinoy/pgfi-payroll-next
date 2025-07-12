@@ -93,14 +93,14 @@ export async function getDeductionsPerEmployee(
   const { cutoffA, cutoffB } = splitAttendanceByCutoff(filteredAttendance);
 
   // calculate pay details for each cutoff
-  const payDetailsA = calculateCutoffDetails(cutoffA, employee?.workRate!);
-  const payDetailsB = calculateCutoffDetails(cutoffB, employee?.workRate!);
+  const payDetailsA = calculateCutoffDetails(cutoffA, employee?.workRate as number);
+  const payDetailsB = calculateCutoffDetails(cutoffB, employee?.workRate as number);
 
   // final
   const netPayA = payDetailsA.grossPay - PAGIBIG_CUTOFF_AMOUNT;
   const deductionB = calculateDeductions(
     payDetailsB.grossPay,
-    employee?.workRate!
+    employee?.workRate as number
   );
   const netPayB = payDetailsB.grossPay - deductionB.totalDeduction;
 

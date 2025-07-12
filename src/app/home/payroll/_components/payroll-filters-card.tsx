@@ -111,7 +111,7 @@ function PayrollFiltersCard({
           Payroll Search Filters
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Select an employee, month, and year to search for payroll records. Click "Search" to load the data.
+          Select an employee, month, and year to search for payroll records. Click &quot;Search&quot; to load the data.
         </p>
       </CardHeader>
       <CardContent>
