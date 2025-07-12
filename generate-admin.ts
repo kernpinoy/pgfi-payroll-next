@@ -37,7 +37,6 @@ async function main() {
     parallelism: 1,
   });
 
-  console.log("WARNING! MAIIBA ANG USERID EVERY RUN!!!!");
   console.log("-------------------------------");
   console.log("Username:", username);
   console.log("Password:", password);
@@ -52,8 +51,6 @@ async function main() {
     hashedPassword: hashed,
     salt: salt.toString("base64"),
   });
-
-  console.log("Check mo na sa https://supabase.com/dashboard/projects");
 }
 
 main()
