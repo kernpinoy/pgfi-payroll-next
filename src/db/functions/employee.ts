@@ -113,16 +113,20 @@ export async function getDeductionsPerEmployee(
       netPay: netPayA,
       deductionsList: [
         {
-          type: "Pag-IBIG",
+          name: "Pag-IBIG",
           amount: PAGIBIG_CUTOFF_AMOUNT,
         },
       ],
+      totalDeduction: PAGIBIG_CUTOFF_AMOUNT,
     },
     cutoffB: {
       period: "B",
       ...payDetailsB,
       netPay: netPayB,
       deductionsList: deductionB.breakDown,
+      totalDeduction: deductionB.totalDeduction,
     },
   };
 }
+
+export type GetDeductionsPerEmployee = Awaited<ReturnType<typeof getDeductionsPerEmployee>>;

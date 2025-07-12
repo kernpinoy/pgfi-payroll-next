@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import { GetDeductionsPerEmployee } from "@/db/functions/employee";
 
 Font.register({
   family: "Roboto",
@@ -136,35 +137,11 @@ const styles = StyleSheet.create({
   },
 });
 
-interface CutoffData {
-  hoursWorked: number;
-  overtime: number;
-  regularHolidays: number;
-  specialHolidays: number;
-  grossPay: number;
-  totalDeduction: number;
-  netPay: number;
-  deductions?: Array<{ name: string; amount: number }>;
-}
-
-interface PayslipData {
-  fullName: string;
-  workRate: number;
-  cutoffA: CutoffData;
-  cutoffB: CutoffData;
-}
-
 interface PayslipPDFProps {
-  data: PayslipData;
+  data: GetDeductionsPerEmployee;
   cutoff: "a" | "b";
   month?: string;
   year?: string;
-  overtimePay?: number;
-  deductions?: Array<{ name: string; amount: number | null }>;
-  regularHours: number; // Optional, if you want to display regular hours
-  regularHolidayPay: number; // Optional, if you want to display regular holiday pay
-  specialHolidayPay: number; // Optional, if you want to display special holiday pay
-  regularPay: number; // Optional, if you want to display regular pay
 }
 
 const PayslipPDF: React.FC<PayslipPDFProps> = ({
@@ -172,16 +149,12 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
   cutoff,
   month,
   year,
-  deductions,
-  overtimePay = 0, // Default to 0 if not provided
-  regularHours,
-  regularHolidayPay = 0, // Default to 0 if not provided
-  specialHolidayPay = 0, // Default to 0 if not provided
-  regularPay = 0, // Default to 0 if not provided
 }) => {
   const cutoffData = cutoff === "a" ? data.cutoffA : data.cutoffB;
   const currentDate = new Date();
   const payPeriod = month && year ? `${month} ${year}` : "Current Period";
+  const { employee } = data;
+  const deductions = cutoffData.deductionsList;
 
   return (
     <Document>
@@ -204,10 +177,10 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           <View style={styles.employeeInfo}>
             <Text style={styles.subtitle}>Employee Information</Text>
             <View style={styles.infoRow}>
-              <Text>Name: {data.fullName}</Text>
+              <Text>Name: {employee?.fullName}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text>Work Rate: {data.workRate.toFixed(2)}</Text>
+              <Text>Work Rate: {employee?.workRate!.toFixed(2)}</Text>
             </View>
           </View>
           <View style={styles.payPeriod}>
@@ -232,33 +205,33 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}>Regular Hours</Text>
-            <Text style={styles.tableCellCenter}>{regularHours}</Text>
-            <Text style={styles.tableCellRight}>{regularPay.toFixed(2)}</Text>
+            <Text style={styles.tableCellCenter}>{cutoffData.regularHours}</Text>
+            <Text style={styles.tableCellRight}>{cutoffData.regularPay.toFixed(2)}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}>Overtime Hours</Text>
-            <Text style={styles.tableCellCenter}>{cutoffData.overtime}</Text>
-            <Text style={styles.tableCellRight}>{overtimePay.toFixed(2)}</Text>
+            <Text style={styles.tableCellCenter}>{cutoffData.overtimeHours}</Text>
+            <Text style={styles.tableCellRight}>{cutoffData.overtimePay.toFixed(2)}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}>Regular Holidays</Text>
             <Text style={styles.tableCellCenter}>
-              {cutoffData.regularHolidays}
+              {cutoffData.regularHolidayDays}
             </Text>
             <Text style={styles.tableCellRight}>
-              {regularHolidayPay.toFixed(2)}
+              {cutoffData.regularHolidayPay.toFixed(2)}
             </Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}>Special Holidays (1.3x)</Text>
             <Text style={styles.tableCellCenter}>
-              {cutoffData.specialHolidays}
+              {cutoffData.specialHolidayDays}
             </Text>
             <Text style={styles.tableCellRight}>
-              {specialHolidayPay.toFixed(2)}
+              {cutoffData.specialHolidayPay.toFixed(2)}
             </Text>
           </View>
         </View>

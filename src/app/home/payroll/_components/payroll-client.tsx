@@ -23,7 +23,7 @@ import { toast } from "sonner";
 
 export default function PayrollClient() {
   const { data: employees } = useGetEmployeesFullName();
-  
+
   // Use our custom hook for filter management
   const {
     filters,
@@ -37,15 +37,24 @@ export default function PayrollClient() {
   } = usePayrollFilters();
 
   // Memoize query parameters to prevent unnecessary refetches
-  const queryParams = useMemo(() => ({
-    employeeId: hasRequiredFilters ? filters.employeeId : "",
-    month: hasRequiredFilters ? filters.month : undefined,
-    year: hasRequiredFilters ? filters.year : undefined,
-    cutoff:
-      filters.cutoff && filters.cutoff !== "all"
-        ? (filters.cutoff as "a" | "b")
-        : undefined,
-  }), [hasRequiredFilters, filters.employeeId, filters.month, filters.year, filters.cutoff]);
+  const queryParams = useMemo(
+    () => ({
+      employeeId: hasRequiredFilters ? filters.employeeId : "",
+      month: hasRequiredFilters ? filters.month : undefined,
+      year: hasRequiredFilters ? filters.year : undefined,
+      cutoff:
+        filters.cutoff && filters.cutoff !== "all"
+          ? (filters.cutoff as "a" | "b")
+          : undefined,
+    }),
+    [
+      hasRequiredFilters,
+      filters.employeeId,
+      filters.month,
+      filters.year,
+      filters.cutoff,
+    ]
+  );
 
   // Get payroll data
   const {
@@ -58,49 +67,45 @@ export default function PayrollClient() {
   } = useGetEmployeeDeduction(queryParams);
 
   // Memoized PDF generation function (keeping this here due to JSX requirements)
-  const generatePayslipPDF = useCallback(async (cutoff: "a" | "b") => {
-    if (!deductions || !hasRequiredFilters) {
-      toast.error("No deductions data available or required filters not selected.");
-      return;
-    }
+  const generatePayslipPDF = useCallback(
+    async (cutoff: "a" | "b") => {
+      if (!deductions || !hasRequiredFilters) {
+        toast.error(
+          "No deductions data available or required filters not selected."
+        );
+        return;
+      }
+      
+      try {
+        const doc = (
+          <PayslipPDF
+            data={deductions}
+            cutoff={cutoff}
+            month={filters.month}
+            year={filters.year}
+          />
+        );
 
-    const cutoffData = cutoff === "a" ? deductions.cutoffA : deductions.cutoffB;
+        const asPdf = pdf(doc);
+        const blob = await asPdf.toBlob();
 
-    try {
-      // const doc = (
-      //   <PayslipPDF
-      //     data={{
-      //       ...deductions,
-      //       fullName: deductions.employee?.fullName!,
-      //       workRate: deductions.employee?.workRate! || 0,
-      //     }}
-      //     cutoff={cutoff}
-      //     month={filters.month}
-      //     year={filters.year}
-      //     deductions={cutoffData.deductionsList}
-      //     overtimePay={cutoffData.overtimePay || 0}
-      //     regularHours={cutoffData.regularHours || 0}
-      //     regularHolidayPay={cutoffData.regularHolidayPay || 0}
-      //     specialHolidayPay={cutoffData.specialHolidayPay || 0}
-      //     regularPay={cutoffData.regularPay || 0}
-      //   />
-      // );
-
-      // const asPdf = pdf(doc);
-      // const blob = await asPdf.toBlob();
-
-      // const filename = `payslip-${deductions.employee.fullName.replace(
-      //   /\s+/g,
-      //   "-"
-      // )}-cutoff-${cutoff.toUpperCase()}-${filters.month}-${filters.year}.pdf`;
-      // saveAs(blob, filename);
-    } catch (error) {
-      toast.error("Error generating PDF. Please try again.");
-    }
-  }, [deductions, hasRequiredFilters, filters.month, filters.year]);
+        const filename = `payslip-${deductions.employee!.fullName.replace(
+          /\s+/g,
+          "-"
+        )}-cutoff-${cutoff.toUpperCase()}-${filters.month}-${filters.year}.pdf`;
+        saveAs(blob, filename);
+      } catch (error) {
+        toast.error("Error generating PDF. Please try again.");
+      }
+    },
+    [deductions, hasRequiredFilters, filters.month, filters.year]
+  );
 
   // Memoize the displayed period to prevent unnecessary recalculations
-  const displayedPeriod = useMemo(() => getDisplayedPeriod(), [getDisplayedPeriod]);
+  const displayedPeriod = useMemo(
+    () => getDisplayedPeriod(),
+    [getDisplayedPeriod]
+  );
 
   // Memoize content rendering to prevent unnecessary re-renders
   const renderContent = useMemo(() => {
@@ -160,9 +165,7 @@ export default function PayrollClient() {
           </CardTitle>
         </CardHeader>
 
-        <CardContent>
-          {renderContent}
-        </CardContent>
+        <CardContent>{renderContent}</CardContent>
       </Card>
     </div>
   );

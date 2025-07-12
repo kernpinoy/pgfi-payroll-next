@@ -8,11 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { type GetDeductionsPerEmployee } from "@/db/functions/employee";
 import { Download } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
 
 interface PayrollTableProps {
-  deductions: any; // You might want to create a proper type for this
+  deductions: GetDeductionsPerEmployee; // You might want to create a proper type for this
   currentCutoff: string;
   onGeneratePDF: (cutoff: "a" | "b") => void;
 }
@@ -25,51 +26,58 @@ const formatCurrency = (amount: number) =>
   });
 
 // Memoized table row component
-const CutoffRow = memo(({ 
-  cutoff, 
-  cutoffData, 
-  onGeneratePDF 
-}: { 
-  cutoff: "a" | "b"; 
-  cutoffData: any; 
-  onGeneratePDF: (cutoff: "a" | "b") => void; 
-}) => {
-  // Memoize PDF generation handler for this specific cutoff
-  const handleGeneratePDF = useCallback(() => {
-    onGeneratePDF(cutoff);
-  }, [cutoff, onGeneratePDF]);
+const CutoffRow = memo(
+  ({
+    cutoff,
+    cutoffData,
+    onGeneratePDF,
+  }: {
+    cutoff: "a" | "b";
+    cutoffData: GetDeductionsPerEmployee["cutoffA"] | GetDeductionsPerEmployee["cutoffB"];
+    onGeneratePDF: (cutoff: "a" | "b") => void;
+  }) => {
+    // Memoize PDF generation handler for this specific cutoff
+    const handleGeneratePDF = useCallback(() => {
+      onGeneratePDF(cutoff);
+    }, [cutoff, onGeneratePDF]);
 
-  // Memoize formatted values to prevent recalculation
-  const formattedValues = useMemo(() => ({
-    grossPay: formatCurrency(cutoffData.grossPay),
-    totalDeduction: formatCurrency(cutoffData.totalDeduction),
-    netPay: formatCurrency(cutoffData.netPay),
-  }), [cutoffData.grossPay, cutoffData.totalDeduction, cutoffData.netPay]);
+    // Memoize formatted values to prevent recalculation
+    const formattedValues = useMemo(() => ({
+      grossPay: formatCurrency(cutoffData.grossPay),
+      totalDeduction: cutoffData.grossPay === 0 ? formatCurrency(0) : formatCurrency(cutoffData.totalDeduction),
+      netPay: cutoffData.grossPay === 0 ? formatCurrency(0) : formatCurrency(cutoffData.netPay),
+    }), [cutoffData.grossPay, cutoffData.totalDeduction, cutoffData.netPay]);
 
-  return (
-    <TableRow>
-      <TableCell className="font-medium">{cutoff.toUpperCase()}</TableCell>
-      <TableCell className="font-medium">{cutoffData.hoursWorked}</TableCell>
-      <TableCell className="font-medium">{cutoffData.overtime}</TableCell>
-      <TableCell className="font-medium">{cutoffData.regularHolidays}</TableCell>
-      <TableCell className="font-medium">{cutoffData.specialHolidays}</TableCell>
-      <TableCell className="font-medium">{formattedValues.grossPay}</TableCell>
+    return (
+      <TableRow>
+        <TableCell className="font-medium">{cutoff.toUpperCase()}</TableCell>
+        <TableCell className="font-medium">{cutoffData.hoursWorked}</TableCell>
+        <TableCell className="font-medium">{cutoffData.overtimeHours}</TableCell>
+        <TableCell className="font-medium">
+          {cutoffData.regularHolidayDays}
+        </TableCell>
+        <TableCell className="font-medium">
+          {cutoffData.specialHolidayDays}
+        </TableCell>
+        <TableCell className="font-medium">{formattedValues.grossPay}</TableCell>
       <TableCell className="font-medium">{formattedValues.totalDeduction}</TableCell>
       <TableCell className="font-medium">{formattedValues.netPay}</TableCell>
-      <TableCell>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleGeneratePDF}
-          className="flex items-center"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          PDF
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-});
+        <TableCell>
+          <Button
+            disabled={!cutoffData.grossPay}
+            variant="outline"
+            size="sm"
+            onClick={handleGeneratePDF}
+            className="flex items-center"
+          >
+            <Download className="h-3 w-3 mr-1" />
+            PDF
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  }
+);
 
 CutoffRow.displayName = "CutoffRow";
 
@@ -79,13 +87,13 @@ function PayrollTable({
   onGeneratePDF,
 }: PayrollTableProps) {
   // Memoize visibility calculations
-  const shouldShowCutoffA = useMemo(() => 
-    !currentCutoff || currentCutoff === "all" || currentCutoff === "a",
+  const shouldShowCutoffA = useMemo(
+    () => !currentCutoff || currentCutoff === "all" || currentCutoff === "a",
     [currentCutoff]
   );
 
-  const shouldShowCutoffB = useMemo(() => 
-    !currentCutoff || currentCutoff === "all" || currentCutoff === "b",
+  const shouldShowCutoffB = useMemo(
+    () => !currentCutoff || currentCutoff === "all" || currentCutoff === "b",
     [currentCutoff]
   );
 
