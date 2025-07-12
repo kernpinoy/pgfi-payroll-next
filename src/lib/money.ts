@@ -18,7 +18,7 @@ export function getHolidayMultiplier(attendance: Attendance) {
 export function computeGrossPay(attendance: Attendance, workRate: number) {
   // take first the rate per hour
   const ratePerHour = workRate / STANDARD_WORK_HOURS;
-  const hoursWorked = computeHoursWorked(attendance.timeIn, attendance.timeOut);
+  const hoursWorked = computeHoursWorked(attendance.timeIn, attendance.timeOut, attendance.breakTimeHours!);
 
   // get the holiday multiplier
   const holidayMultiplier = getHolidayMultiplier(attendance);
