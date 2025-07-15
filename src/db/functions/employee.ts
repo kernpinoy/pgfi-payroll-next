@@ -100,7 +100,8 @@ export async function getDeductionsPerEmployee(
   const netPayA = payDetailsA.grossPay - PAGIBIG_CUTOFF_AMOUNT;
   const deductionB = calculateDeductions(
     payDetailsB.grossPay,
-    employee?.workRate as number
+    employee?.workRate as number,
+    payDetailsA.grossPay
   );
   const netPayB = payDetailsB.grossPay - deductionB.totalDeduction;
 

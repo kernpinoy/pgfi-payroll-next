@@ -107,9 +107,10 @@ export function calculateCutoffDetails(attendanceRecords: Attendance[], workRate
   };
 }
 
-export function calculateDeductions(grossPay: number, workRate: number) {
+export function calculateDeductions(grossPay: number, workRate: number, grossPayA: number) {
+  const wholePay = grossPay + grossPayA;
   const phic = getPhilHealthContribution(workRate);
-  const sss = getEEFromGross(grossPay);
+  const sss = getEEFromGross(wholePay);
   const pagibigOffset = getPagibigOffset(grossPay);
 
   let totalDeduction = phic + sss!;
